@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Summary Statistics</title>
+    <meta charset="utf-8" />
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
+    <link href="libs/table1-1.0/table1_defaults.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Summary Statistics
+## Using R to Create Basic Summary Tables
+
+---
+
+
+
+
+
+
+
+---
+
+## Opening the R packages needed for this workshop
+
+
+```r
+# if needed, install packages through the Tools menu: tidyverse, haven, table1
+# load packages needed for this workshop
+library(package = "tidyverse")
+library(package = "haven")
+library(package = "table1")
+```
+
+
+---
+
+## A couple of caveats before we begin...
+
+&lt;img src="data-tutorials-wild.jpg" width="907" style="display: block; margin: auto;" /&gt;
+
+---
+
+## A couple of caveats before we begin...
+
+&lt;img src="aggressively-coding-tweet.PNG" width="250" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Importing the data
+
+* The data can be found on the CDC website and downloaded directly into R from there 
+* Downloading data directly 
+
+
+```r
+# 2015 Behavioral Risk Factor Surveillance Survey data
+temp &lt;- tempfile(fileext = ".zip")
+download.file(url  = "https://www.cdc.gov/brfss/annual_data/2015/files/LLCP2015XPT.zip", destfile = temp)
+BRFSS_2015 &lt;- read_xpt(file = temp)
+```
+
+---
+
+## Selecting variables of interest
+
+* Search the codebook to learn how these variables were measured:
+    + https://www.cdc.gov/brfss/annual_data/2014/pdf/codebook14_llcp.pdf
+
+
+```r
+# select sex and transgender identity variables
+# and alcohol consumption variables
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+   select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`)
+```
+
+---
+
+## Examine the variables of interest
+
+
+```r
+# summarize small data set
+summary(object = BRFSS_2015_small)
+```
+
+```
+      SEX           TRNSGNDR         _RFDRHV5        _DRNKWEK    
+ Min.   :1.000   Min.   :1.00     Min.   :1.000   Min.   :    0  
+ 1st Qu.:1.000   1st Qu.:4.00     1st Qu.:1.000   1st Qu.:    0  
+ Median :2.000   Median :4.00     Median :1.000   Median :   23  
+ Mean   :1.577   Mean   :4.05     Mean   :1.516   Mean   : 6070  
+ 3rd Qu.:2.000   3rd Qu.:4.00     3rd Qu.:1.000   3rd Qu.:  350  
+ Max.   :2.000   Max.   :9.00     Max.   :9.000   Max.   :99900  
+                 NA's   :274549                                  
+```
+
+
+---
+
+count: false
+ 
+## Recoding the sex variable
+.panel1-recode-sex-auto[
+
+```r
+*BRFSS_2015_small &lt;- BRFSS_2015
+```
+]
+ 
+.panel2-recode-sex-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding the sex variable
+.panel1-recode-sex-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+* select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`)
+```
+]
+ 
+.panel2-recode-sex-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding the sex variable
+.panel1-recode-sex-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+* mutate(SEX = recode_factor(SEX,
+*                            '2' = 'male',
+*                            '1' = 'female'))
+```
+]
+ 
+.panel2-recode-sex-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding the sex variable
+.panel1-recode-sex-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '2' = 'male',
+                             '1' = 'female'))
+```
+]
+ 
+.panel2-recode-sex-auto[
+
+]
+
+&lt;style&gt;
+.panel1-recode-sex-auto {
+  color: black;
+  width: 98%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-recode-sex-auto {
+  color: black;
+  width: 0%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-recode-sex-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+## Checking the work so far
+
+
+```r
+# summarize the data frame
+summary(object = BRFSS_2015_small)
+```
+
+```
+     SEX            TRNSGNDR         _RFDRHV5        _DRNKWEK    
+ male  :254518   Min.   :1.00     Min.   :1.000   Min.   :    0  
+ female:186938   1st Qu.:4.00     1st Qu.:1.000   1st Qu.:    0  
+                 Median :4.00     Median :1.000   Median :   23  
+                 Mean   :4.05     Mean   :1.516   Mean   : 6070  
+                 3rd Qu.:4.00     3rd Qu.:1.000   3rd Qu.:  350  
+                 Max.   :9.00     Max.   :9.000   Max.   :99900  
+                 NA's   :274549                                  
+```
+
+---
+
+count: false
+ 
+## Recoding the trans variable
+.panel1-recode-trans-auto[
+
+```r
+*BRFSS_2015_small &lt;- BRFSS_2015
+```
+]
+ 
+.panel2-recode-trans-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding the trans variable
+.panel1-recode-trans-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+* select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`)
+```
+]
+ 
+.panel2-recode-trans-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding the trans variable
+.panel1-recode-trans-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+* mutate(SEX = recode_factor(SEX,
+*                            '1' = 'male',
+*                            '2' = 'female'))
+```
+]
+ 
+.panel2-recode-trans-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding the trans variable
+.panel1-recode-trans-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+* mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+*                                 '1' = 'male-to-female',
+*                                 '2' = 'female-to-male',
+*                                 '3' = 'gender non-conforming',
+*                                 '4' = 'not transgender',
+*                                 '7' = NA_character_,
+*                                 '9' = NA_character_))
+```
+]
+ 
+.panel2-recode-trans-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding the trans variable
+.panel1-recode-trans-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_))
+```
+]
+ 
+.panel2-recode-trans-auto[
+
+]
+
+&lt;style&gt;
+.panel1-recode-trans-auto {
+  color: black;
+  width: 98%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-recode-trans-auto {
+  color: black;
+  width: 0%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-recode-trans-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+## Checking the work so far
+
+
+```r
+# summarize the data frame
+summary(object = BRFSS_2015_small)
+```
+
+```
+     SEX                          TRNSGNDR         _RFDRHV5        _DRNKWEK    
+ male  :186938   male-to-female       :   361   Min.   :1.000   Min.   :    0  
+ female:254518   female-to-male       :   237   1st Qu.:1.000   1st Qu.:    0  
+                 gender non-conforming:   154   Median :1.000   Median :   23  
+                 not transgender      :163685   Mean   :1.516   Mean   : 6070  
+                 NA's                 :277019   3rd Qu.:1.000   3rd Qu.:  350  
+                                                Max.   :9.000   Max.   :99900  
+```
+
+---
+
+## You try it!
+
+* Add to the code to add labels to the heavy drinking variable
+
+
+```r
+# add on to the previous data management
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%  
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;% 
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_))
+```
+
+---
+
+count: false
+ 
+## Recoding heavy drinking
+.panel1-recode-drink-auto[
+
+```r
+*BRFSS_2015_small &lt;- BRFSS_2015
+```
+]
+ 
+.panel2-recode-drink-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding heavy drinking
+.panel1-recode-drink-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+* select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`)
+```
+]
+ 
+.panel2-recode-drink-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding heavy drinking
+.panel1-recode-drink-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+* mutate(SEX = recode_factor(SEX,
+*                            '1' = 'male',
+*                            '2' = 'female'))
+```
+]
+ 
+.panel2-recode-drink-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding heavy drinking
+.panel1-recode-drink-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+* mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+*                                 '1' = 'male-to-female',
+*                                 '2' = 'female-to-male',
+*                                 '3' = 'gender non-conforming',
+*                                 '4' = 'not transgender',
+*                                 '7' = NA_character_,
+*                                 '9' = NA_character_))
+```
+]
+ 
+.panel2-recode-drink-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding heavy drinking
+.panel1-recode-drink-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+* mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+*                                   '1' = 'no',
+*                                   '2' = 'yes',
+*                                   '9' = NA_character_))
+```
+]
+ 
+.panel2-recode-drink-auto[
+
+]
+
+&lt;style&gt;
+.panel1-recode-drink-auto {
+  color: black;
+  width: 98%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-recode-drink-auto {
+  color: black;
+  width: 0%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-recode-drink-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+## Checking the work so far
+
+
+```r
+# summarize the data frame
+summary(object = BRFSS_2015_small)
+```
+
+```
+     SEX                          TRNSGNDR      _RFDRHV5         _DRNKWEK    
+ male  :186938   male-to-female       :   361   no  :393658   Min.   :    0  
+ female:254518   female-to-male       :   237   yes : 22065   1st Qu.:    0  
+                 gender non-conforming:   154   NA's: 25733   Median :   23  
+                 not transgender      :163685                 Mean   : 6070  
+                 NA's                 :277019                 3rd Qu.:  350  
+                                                              Max.   :99900  
+```
+
+
+---
+
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+*BRFSS_2015_small &lt;- BRFSS_2015
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+* select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`)
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+* mutate(SEX = recode_factor(SEX,
+*                            '1' = 'male',
+*                            '2' = 'female'))
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+* mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+*                                 '1' = 'male-to-female',
+*                                 '2' = 'female-to-male',
+*                                 '3' = 'gender non-conforming',
+*                                 '4' = 'not transgender',
+*                                 '7' = NA_character_,
+*                                 '9' = NA_character_))
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+* mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+*                                   '1' = 'no',
+*                                   '2' = 'yes',
+*                                   '9' = NA_character_))
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+* mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100)
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+  mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100) %&gt;%
+* mutate(`_DRNKWEK` = na_if(`_DRNKWEK`, 999))
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+  mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100) %&gt;%
+  mutate(`_DRNKWEK` = na_if(`_DRNKWEK`, 999)) %&gt;%
+* rename(sex = SEX)
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+  mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100) %&gt;%
+  mutate(`_DRNKWEK` = na_if(`_DRNKWEK`, 999)) %&gt;%
+  rename(sex = SEX) %&gt;%
+* rename(genderIdentity = TRNSGNDR)
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+  mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100) %&gt;%
+  mutate(`_DRNKWEK` = na_if(`_DRNKWEK`, 999)) %&gt;%
+  rename(sex = SEX) %&gt;%
+  rename(genderIdentity = TRNSGNDR) %&gt;%
+* rename(heavyDrink = `_RFDRHV5`)
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+  mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100) %&gt;%
+  mutate(`_DRNKWEK` = na_if(`_DRNKWEK`, 999)) %&gt;%
+  rename(sex = SEX) %&gt;%
+  rename(genderIdentity = TRNSGNDR) %&gt;%
+  rename(heavyDrink = `_RFDRHV5`) %&gt;%
+* rename(drinksWeek = `_DRNKWEK`)
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+  mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100) %&gt;%
+  mutate(`_DRNKWEK` = na_if(`_DRNKWEK`, 999)) %&gt;%
+  rename(sex = SEX) %&gt;%
+  rename(genderIdentity = TRNSGNDR) %&gt;%
+  rename(heavyDrink = `_RFDRHV5`) %&gt;%
+  rename(drinksWeek = `_DRNKWEK`) %&gt;%
+* drop_na()
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+---
+count: false
+ 
+## Recoding other variables
+.panel1-recode-other-auto[
+
+```r
+BRFSS_2015_small &lt;- BRFSS_2015 %&gt;%
+  select(SEX, TRNSGNDR, `_RFDRHV5`, `_DRNKWEK`) %&gt;%
+  mutate(SEX = recode_factor(SEX,
+                             '1' = 'male',
+                             '2' = 'female')) %&gt;%
+  mutate(TRNSGNDR = recode_factor(TRNSGNDR,
+                                  '1' = 'male-to-female',
+                                  '2' = 'female-to-male',
+                                  '3' = 'gender non-conforming',
+                                  '4' = 'not transgender',
+                                  '7' = NA_character_,
+                                  '9' = NA_character_)) %&gt;%
+  mutate(`_RFDRHV5` = recode_factor(`_RFDRHV5`,
+                                    '1' = 'no',
+                                    '2' = 'yes',
+                                    '9' = NA_character_)) %&gt;%
+  mutate(`_DRNKWEK` = as.numeric(`_DRNKWEK`)/100) %&gt;%
+  mutate(`_DRNKWEK` = na_if(`_DRNKWEK`, 999)) %&gt;%
+  rename(sex = SEX) %&gt;%
+  rename(genderIdentity = TRNSGNDR) %&gt;%
+  rename(heavyDrink = `_RFDRHV5`) %&gt;%
+  rename(drinksWeek = `_DRNKWEK`) %&gt;%
+  drop_na()
+```
+]
+ 
+.panel2-recode-other-auto[
+
+]
+
+&lt;style&gt;
+.panel1-recode-other-auto {
+  color: black;
+  width: 98%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-recode-other-auto {
+  color: black;
+  width: 0%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-recode-other-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+## Checking the work so far
+
+
+```r
+# summarize the data set
+summary(object = BRFSS_2015_small)
+```
+
+```
+     sex                      genderIdentity   heavyDrink     drinksWeek     
+ male  :68002   male-to-female       :   350   no :153032   Min.   :  0.000  
+ female:93637   female-to-male       :   235   yes:  8607   1st Qu.:  0.000  
+                gender non-conforming:   150                Median :  0.230  
+                not transgender      :160904                Mean   :  2.645  
+                                                            3rd Qu.:  2.330  
+                                                            Max.   :532.000  
+```
+
+---
+
+## Summary statistics
+
+&lt;img src="brace-yourself-stats-are-coming.jpg" width="800" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Table of all variables
+
+
+```r
+# basic table with all variables
+table1(~ sex + genderIdentity + heavyDrink + drinksWeek, 
+       data = BRFSS_2015_small)
+```
+
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=161639)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>sex</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male</td>
+<td>68002 (42.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>female</td>
+<td class='lastrow'>93637 (57.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>genderIdentity</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male-to-female</td>
+<td>350 (0.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>female-to-male</td>
+<td>235 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>gender non-conforming</td>
+<td>150 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>not transgender</td>
+<td class='lastrow'>160904 (99.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>heavyDrink</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>no</td>
+<td>153032 (94.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>yes</td>
+<td class='lastrow'>8607 (5.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>drinksWeek</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>2.64 (7.90)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Median [Min, Max]</td>
+<td class='lastrow'>0.230 [0, 532]</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+---
+
+## Add labels to the table
+
+
+```r
+# labels for each variable
+label(BRFSS_2015_small$sex) = "Participant sex"
+label(BRFSS_2015_small$genderIdentity) = "Participant gender identity"
+label(BRFSS_2015_small$heavyDrink) = "Participant is heavy drinker"
+label(BRFSS_2015_small$drinksWeek) = "Number of alcohol drinks per week"
+
+# table of all variables with labels
+table1(~ sex + genderIdentity + heavyDrink + drinksWeek, 
+       data = BRFSS_2015_small)
+```
+
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=161639)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>Participant sex</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male</td>
+<td>68002 (42.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>female</td>
+<td class='lastrow'>93637 (57.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Participant gender identity</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male-to-female</td>
+<td>350 (0.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>female-to-male</td>
+<td>235 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>gender non-conforming</td>
+<td>150 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>not transgender</td>
+<td class='lastrow'>160904 (99.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Participant is heavy drinker</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>no</td>
+<td>153032 (94.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>yes</td>
+<td class='lastrow'>8607 (5.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Number of alcohol drinks per week</td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>2.64 (7.90)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Median [Min, Max]</td>
+<td class='lastrow'>0.230 [0, 532]</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+---
+
+## Stratified table
+
+
+```r
+# stratified table
+table1(~ genderIdentity + heavyDrink + drinksWeek | sex, 
+       data = BRFSS_2015_small)
+```
+
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>male<br><span class='stratn'>(N=68002)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>female<br><span class='stratn'>(N=93637)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=161639)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>Participant gender identity</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male-to-female</td>
+<td>257 (0.4%)</td>
+<td>93 (0.1%)</td>
+<td>350 (0.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>female-to-male</td>
+<td>81 (0.1%)</td>
+<td>154 (0.2%)</td>
+<td>235 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>gender non-conforming</td>
+<td>74 (0.1%)</td>
+<td>76 (0.1%)</td>
+<td>150 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>not transgender</td>
+<td class='lastrow'>67590 (99.4%)</td>
+<td class='lastrow'>93314 (99.7%)</td>
+<td class='lastrow'>160904 (99.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Participant is heavy drinker</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>no</td>
+<td>64005 (94.1%)</td>
+<td>89027 (95.1%)</td>
+<td>153032 (94.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>yes</td>
+<td class='lastrow'>3997 (5.9%)</td>
+<td class='lastrow'>4610 (4.9%)</td>
+<td class='lastrow'>8607 (5.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Number of alcohol drinks per week</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>4.05 (10.5)</td>
+<td>1.62 (5.04)</td>
+<td>2.64 (7.90)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Median [Min, Max]</td>
+<td class='lastrow'>0.700 [0, 532]</td>
+<td class='lastrow'>0 [0, 420]</td>
+<td class='lastrow'>0.230 [0, 532]</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+---
+
+## Available descriptive statistics for table1
+
+* Good resource document for the `table1` package: https://cran.r-project.org/web/packages/table1/table1.pdf
+
+* Available descriptive statistics (* default): 
+    + N* -- number of non-missing observations 
+    + NMISS -- number missing values
+    + MEAN* -- mean
+    + SD* -- standard deviation
+    + MIN* -- minimum value
+    + MEDIAN* -- median or middle value
+    + MAX* -- maximum value
+    + IQR -- interquartile range 
+    + CV -- coefficient of variation
+    + GMEAN -- geometric mean
+    + GSD -- geometric standard deviation
+    + GCV -- geometric coefficient of variation
+    + FREQ* -- frequency 
+    + PCT* -- percentage
+
+---
+
+## Specifying descriptive statistics in a table
+
+* Continuous variables are typically described using mean and standard deviation if normally distributed 
+
+* If skewed or otherwise non-normal, continuous variables are described with median and interquartile range (IQR)
+
+* Categorical variables are almost always described using the frequency and percentage of observations in each category
+
+---
+
+count: false
+ 
+## Distribution of continuous variable
+.panel1-histo-facets-auto[
+
+```r
+*BRFSS_2015_small
+```
+]
+ 
+.panel2-histo-facets-auto[
+
+```
+# A tibble: 161,639 × 4
+   sex    genderIdentity  heavyDrink drinksWeek
+   &lt;fct&gt;  &lt;fct&gt;           &lt;fct&gt;           &lt;dbl&gt;
+ 1 female not transgender no               2.33
+ 2 male   not transgender no               0.47
+ 3 female not transgender no               0   
+ 4 female not transgender no               3   
+ 5 female not transgender no               0   
+ 6 male   not transgender no               0   
+ 7 female not transgender no               2.33
+ 8 female not transgender no               0   
+ 9 male   not transgender no               0   
+10 female not transgender no               0   
+# … with 161,629 more rows
+```
+]
+
+---
+count: false
+ 
+## Distribution of continuous variable
+.panel1-histo-facets-auto[
+
+```r
+BRFSS_2015_small %&gt;%
+* ggplot(aes(x = drinksWeek))
+```
+]
+ 
+.panel2-histo-facets-auto[
+![](analysis-tables_files/figure-html/histo-facets_auto_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+## Distribution of continuous variable
+.panel1-histo-facets-auto[
+
+```r
+BRFSS_2015_small %&gt;%
+  ggplot(aes(x = drinksWeek)) +
+* geom_histogram()
+```
+]
+ 
+.panel2-histo-facets-auto[
+![](analysis-tables_files/figure-html/histo-facets_auto_03_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+## Distribution of continuous variable
+.panel1-histo-facets-auto[
+
+```r
+BRFSS_2015_small %&gt;%
+  ggplot(aes(x = drinksWeek)) +
+  geom_histogram() +
+* facet_wrap(facets = vars(sex))
+```
+]
+ 
+.panel2-histo-facets-auto[
+![](analysis-tables_files/figure-html/histo-facets_auto_04_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-histo-facets-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-histo-facets-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-histo-facets-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+## Modifying the table
+
+
+```r
+# specifying continuous variable stats
+table1(~ genderIdentity + heavyDrink + drinksWeek | sex, 
+       render.continuous = 'Median (iqr)',
+       data = BRFSS_2015_small)
+```
+
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>male<br><span class='stratn'>(N=68002)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>female<br><span class='stratn'>(N=93637)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=161639)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>Participant gender identity</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male-to-female</td>
+<td>257 (0.4%)</td>
+<td>93 (0.1%)</td>
+<td>350 (0.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>female-to-male</td>
+<td>81 (0.1%)</td>
+<td>154 (0.2%)</td>
+<td>235 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>gender non-conforming</td>
+<td>74 (0.1%)</td>
+<td>76 (0.1%)</td>
+<td>150 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>not transgender</td>
+<td class='lastrow'>67590 (99.4%)</td>
+<td class='lastrow'>93314 (99.7%)</td>
+<td class='lastrow'>160904 (99.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Participant is heavy drinker</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>no</td>
+<td>64005 (94.1%)</td>
+<td>89027 (95.1%)</td>
+<td>153032 (94.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>yes</td>
+<td class='lastrow'>3997 (5.9%)</td>
+<td class='lastrow'>4610 (4.9%)</td>
+<td class='lastrow'>8607 (5.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow lastrow'>Number of alcohol drinks per week</td>
+<td class='firstrow lastrow'>0.700 (4.67)</td>
+<td class='firstrow lastrow'>0 (1.17)</td>
+<td class='firstrow lastrow'>0.230 (2.33)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+---
+
+## Fix the label to identify metrics
+
+
+```r
+# add median and iqr to label
+label(BRFSS_2015_small$drinksWeek) = "Number of alcohol drinks per week (median, iqr)"
+
+# specifying continuous variable stats
+table1(~ genderIdentity + heavyDrink + drinksWeek | sex, 
+       render.continuous = 'Median (iqr)',
+       data = BRFSS_2015_small)
+```
+
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>male<br><span class='stratn'>(N=68002)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>female<br><span class='stratn'>(N=93637)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=161639)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>Participant gender identity</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male-to-female</td>
+<td>257 (0.4%)</td>
+<td>93 (0.1%)</td>
+<td>350 (0.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>female-to-male</td>
+<td>81 (0.1%)</td>
+<td>154 (0.2%)</td>
+<td>235 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>gender non-conforming</td>
+<td>74 (0.1%)</td>
+<td>76 (0.1%)</td>
+<td>150 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>not transgender</td>
+<td class='lastrow'>67590 (99.4%)</td>
+<td class='lastrow'>93314 (99.7%)</td>
+<td class='lastrow'>160904 (99.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Participant is heavy drinker</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>no</td>
+<td>64005 (94.1%)</td>
+<td>89027 (95.1%)</td>
+<td>153032 (94.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>yes</td>
+<td class='lastrow'>3997 (5.9%)</td>
+<td class='lastrow'>4610 (4.9%)</td>
+<td class='lastrow'>8607 (5.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow lastrow'>Number of alcohol drinks per week (median, iqr)</td>
+<td class='firstrow lastrow'>0.700 (4.67)</td>
+<td class='firstrow lastrow'>0 (1.17)</td>
+<td class='firstrow lastrow'>0.230 (2.33)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+---
+
+## You try it! 
+
+* Change the table1 code so that it:
+    + stratifies by heavyDrink rather than by sex
+    + prints the median with min and max for the continuous variables
+
+
+```r
+# table stratified by heavyDrink
+table1(~ genderIdentity + heavyDrink + drinksWeek | sex, 
+       data = BRFSS_2015_small)
+```
+
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>male<br><span class='stratn'>(N=68002)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>female<br><span class='stratn'>(N=93637)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=161639)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>Participant gender identity</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male-to-female</td>
+<td>257 (0.4%)</td>
+<td>93 (0.1%)</td>
+<td>350 (0.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>female-to-male</td>
+<td>81 (0.1%)</td>
+<td>154 (0.2%)</td>
+<td>235 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>gender non-conforming</td>
+<td>74 (0.1%)</td>
+<td>76 (0.1%)</td>
+<td>150 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>not transgender</td>
+<td class='lastrow'>67590 (99.4%)</td>
+<td class='lastrow'>93314 (99.7%)</td>
+<td class='lastrow'>160904 (99.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Participant is heavy drinker</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>no</td>
+<td>64005 (94.1%)</td>
+<td>89027 (95.1%)</td>
+<td>153032 (94.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>yes</td>
+<td class='lastrow'>3997 (5.9%)</td>
+<td class='lastrow'>4610 (4.9%)</td>
+<td class='lastrow'>8607 (5.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Number of alcohol drinks per week (median, iqr)</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>4.05 (10.5)</td>
+<td>1.62 (5.04)</td>
+<td>2.64 (7.90)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Median [Min, Max]</td>
+<td class='lastrow'>0.700 [0, 532]</td>
+<td class='lastrow'>0 [0, 420]</td>
+<td class='lastrow'>0.230 [0, 532]</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+---
+
+## You try it! One possible answer
+
+
+```r
+# add median and iqr to label
+label(BRFSS_2015_small$drinksWeek) = "Number of alcohol drinks per week (median, range)"
+
+# table stratified by heavyDrink
+table1(~ genderIdentity + sex + drinksWeek | heavyDrink, 
+       render.continuous = 'Median (min--max)',
+       data = BRFSS_2015_small)
+```
+
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>no<br><span class='stratn'>(N=153032)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>yes<br><span class='stratn'>(N=8607)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=161639)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'>Participant gender identity</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male-to-female</td>
+<td>329 (0.2%)</td>
+<td>21 (0.2%)</td>
+<td>350 (0.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>female-to-male</td>
+<td>224 (0.1%)</td>
+<td>11 (0.1%)</td>
+<td>235 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>gender non-conforming</td>
+<td>142 (0.1%)</td>
+<td>8 (0.1%)</td>
+<td>150 (0.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>not transgender</td>
+<td class='lastrow'>152337 (99.5%)</td>
+<td class='lastrow'>8567 (99.5%)</td>
+<td class='lastrow'>160904 (99.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'>Participant sex</td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>male</td>
+<td>64005 (41.8%)</td>
+<td>3997 (46.4%)</td>
+<td>68002 (42.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>female</td>
+<td class='lastrow'>89027 (58.2%)</td>
+<td class='lastrow'>4610 (53.6%)</td>
+<td class='lastrow'>93637 (57.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow lastrow'>Number of alcohol drinks per week (median, range)</td>
+<td class='firstrow lastrow'>0 (0--14.0)</td>
+<td class='firstrow lastrow'>17.5 (7.47--532)</td>
+<td class='firstrow lastrow'>0.230 (0--532)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+---
+
+count: false
+ 
+## Other base R descriptive code
+.panel1-desc-auto[
+
+```r
+*mean(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+```
+]
+ 
+.panel2-desc-auto[
+
+```
+[1] 2.644717
+```
+]
+
+---
+count: false
+ 
+## Other base R descriptive code
+.panel1-desc-auto[
+
+```r
+mean(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+*median(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+```
+]
+ 
+.panel2-desc-auto[
+
+```
+[1] 2.644717
+```
+
+```
+[1] 0.23
+```
+]
+
+---
+count: false
+ 
+## Other base R descriptive code
+.panel1-desc-auto[
+
+```r
+mean(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+median(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+*sd(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+```
+]
+ 
+.panel2-desc-auto[
+
+```
+[1] 2.644717
+```
+
+```
+[1] 0.23
+```
+
+```
+[1] 7.897434
+```
+]
+
+---
+count: false
+ 
+## Other base R descriptive code
+.panel1-desc-auto[
+
+```r
+mean(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+median(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+sd(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+*IQR(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+```
+]
+ 
+.panel2-desc-auto[
+
+```
+[1] 2.644717
+```
+
+```
+[1] 0.23
+```
+
+```
+[1] 7.897434
+```
+
+```
+[1] 2.33
+```
+]
+
+---
+count: false
+ 
+## Other base R descriptive code
+.panel1-desc-auto[
+
+```r
+mean(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+median(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+sd(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+IQR(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+*table(BRFSS_2015_small$sex)
+```
+]
+ 
+.panel2-desc-auto[
+
+```
+[1] 2.644717
+```
+
+```
+[1] 0.23
+```
+
+```
+[1] 7.897434
+```
+
+```
+[1] 2.33
+```
+
+```
+
+  male female 
+ 68002  93637 
+```
+]
+
+---
+count: false
+ 
+## Other base R descriptive code
+.panel1-desc-auto[
+
+```r
+mean(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+median(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+sd(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+IQR(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+table(BRFSS_2015_small$sex)
+*table(BRFSS_2015_small$sex, BRFSS_2015_small$heavyDrink)
+```
+]
+ 
+.panel2-desc-auto[
+
+```
+[1] 2.644717
+```
+
+```
+[1] 0.23
+```
+
+```
+[1] 7.897434
+```
+
+```
+[1] 2.33
+```
+
+```
+
+  male female 
+ 68002  93637 
+```
+
+```
+        
+            no   yes
+  male   64005  3997
+  female 89027  4610
+```
+]
+
+---
+count: false
+ 
+## Other base R descriptive code
+.panel1-desc-auto[
+
+```r
+mean(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+median(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+sd(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+IQR(BRFSS_2015_small$drinksWeek, na.rm = TRUE)
+table(BRFSS_2015_small$sex)
+table(BRFSS_2015_small$sex, BRFSS_2015_small$heavyDrink)
+*prop.table(table(BRFSS_2015_small$sex))
+```
+]
+ 
+.panel2-desc-auto[
+
+```
+[1] 2.644717
+```
+
+```
+[1] 0.23
+```
+
+```
+[1] 7.897434
+```
+
+```
+[1] 2.33
+```
+
+```
+
+  male female 
+ 68002  93637 
+```
+
+```
+        
+            no   yes
+  male   64005  3997
+  female 89027  4610
+```
+
+```
+
+     male    female 
+0.4207029 0.5792971 
+```
+]
+
+&lt;style&gt;
+.panel1-desc-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-desc-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-desc-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+
+---
+
+## descr package for more summary statistics
+
+* descr -- this package has functions for computing group means, crosstabs, and other frequently used descriptive statistics 
+
+    + https://cran.r-project.org/web/packages/descr/descr.pdf 
+    
+
+```r
+# install descr first
+# compare means function example
+library(package = "descr")
+compmeans(x = BRFSS_2015_small$drinksWeek, 
+          f = BRFSS_2015_small$sex,
+          plot = FALSE)
+```
+
+```
+Mean value of "Number of alcohol drinks per week (median, range)" according to
+"Participant sex"
+           Mean      N Std. Dev.
+male   4.052823  68002 10.480450
+female 1.622109  93637  5.040851
+Total  2.644717 161639  7.897434
+```
+
+    
+
+---
+
+## Hmisc package for more summary statistics
+
+* Hmisc -- this package has a great `describe` function that gives a detailed list of descriptive statistics for every variable in a data frame 
+
+    + https://cran.r-project.org/web/packages/Hmisc/Hmisc.pdf
+
+
+```r
+# install Hmisc first
+# describe function
+library(package = "Hmisc")
+describe(BRFSS_2015_small)
+```
+
+```
+BRFSS_2015_small 
+
+ 4  Variables      161639  Observations
+--------------------------------------------------------------------------------
+sex : Participant sex 
+       n  missing distinct 
+  161639        0        2 
+                        
+Value        male female
+Frequency   68002  93637
+Proportion  0.421  0.579
+--------------------------------------------------------------------------------
+genderIdentity : Participant gender identity 
+       n  missing distinct 
+  161639        0        4 
+                                                                            
+Value             male-to-female        female-to-male gender non-conforming
+Frequency                    350                   235                   150
+Proportion                 0.002                 0.001                 0.001
+                                
+Value            not transgender
+Frequency                 160904
+Proportion                 0.995
+--------------------------------------------------------------------------------
+heavyDrink : Participant is heavy drinker 
+       n  missing distinct 
+  161639        0        2 
+                        
+Value          no    yes
+Frequency  153032   8607
+Proportion  0.947  0.053
+--------------------------------------------------------------------------------
+drinksWeek : Number of alcohol drinks per week (median, range) 
+       n  missing distinct     Info     Mean      Gmd      .05      .10 
+  161639        0      196    0.889    2.645    4.289     0.00     0.00 
+     .25      .50      .75      .90      .95 
+    0.00     0.23     2.33     7.00    14.00 
+
+lowest :   0.00   0.23   0.47   0.70   0.93, highest: 336.00 350.00 420.00 490.00 532.00
+--------------------------------------------------------------------------------
+```
+
+
+---
+
+## The end
+
+* Email me at [harrisj@wustl.edu](mailto:harrisj@wustl.edu)
+
+* Connect with me on Twitter [@jenineharris](https://twitter.com/jenineharris)
+
+&lt;br&gt;&lt;br&gt;
+&lt;img src="https://www.apha.org/-/media/Images/meetings/Annual-Meeting/2021/APHA2021_Banner_Blue.ashx?h=196.8&amp;w=719&amp;hash=2F3A00E7F25C7EF2380B04E42A37FD9B" width="800" style="display: block; margin: auto;" /&gt;
+
+
+&lt;!-- adjust font size in this css code chunk, currently 80 --&gt;
+
+&lt;style type="text/css"&gt;
+.remark-code{line-height: 1.5; font-size: 80%}
+
+@media print {
+  .has-continuation {
+    display: block;
+  }
+}
+
+code.r.hljs.remark-code{
+  position: relative;
+  overflow-x: hidden;
+}
+
+
+code.r.hljs.remark-code:hover{
+  overflow-x:visible;
+  width: 500px;
+  border-style: solid;
+}
+&lt;/style&gt;
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
