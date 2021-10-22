@@ -63,6 +63,29 @@ BRFSS_2015 &lt;- read_xpt(file = temp)
 
 ---
 
+## %&gt;% 
+
+* The pipe %&gt;% operator (cmd-shift-m in Mac, ctrl-shift-m in PC) is part of the tidyverse and is used to organize data management &amp; other stuff
+
+* In the earlier tutorial you learned the base-R way of managing data, in this section we will use the tidyverse way
+
+
+```r
+# non-pipe base-R example
+# "me" as data frame
+leave_house(eat_breakfast(get_dressed(get_out_of_bed(wake_up(me)))))
+
+# pipe equivalent with "me" as data frame
+me %&gt;% 
+  wake_up() %&gt;% 
+  get_out_of_bed() %&gt;% 
+  get_dressed() %&gt;% 
+  eat_breakfast() %&gt;% 
+  leave_house()
+```
+
+---
+
 ## Selecting variables of interest
 
 * Search the codebook to learn how these variables were measured:
